@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import React from 'react';
 
 interface TodoItemProps {
@@ -9,9 +10,11 @@ interface TodoItemProps {
 const TodoItem: React.FC<TodoItemProps> = ({ title, description, completed }) => {
   return (
     <div>
-      <h3>{title}</h3>
-      <p>{description}</p>
-      <p>{completed ? 'Completed' : 'Not Completed'}</p>
+      <Typography>
+        {title}
+      </Typography>
+      <Typography>{description}</Typography>
+      <Typography>{completed ? 'Completed' : 'Not Completed'}</Typography>
     </div>
   );
 };
