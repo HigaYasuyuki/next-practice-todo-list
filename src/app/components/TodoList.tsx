@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import TodoItem from './TodoItem';
 import SelectedItemDescription from './SelectedItemDescription';
-import { List, TextField, Button, TextareaAutosize } from '@mui/material';
+import { List, TextField, Button } from '@mui/material';
 import FloatingButton from './FloatingButton';
 
 interface Todo {
@@ -18,6 +18,7 @@ interface TodoListProps {
 }
 
 const TodoList: React.FC<TodoListProps> = ({ todos }) => {
+  const [displayedTodos, setDisplayedTodos] = useState(todos);
   const [selectedItem, setSelectedItem] = useState<Todo | null>(null);
   const [showInput, setShowInput] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -46,7 +47,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos }) => {
 
     if (response.ok) {
       const newTodo = await response.json();
-      todos.push(newTodo);
+      setDisplayedTodos([...displayedTodos, newTodo]);
       setShowInput(false);
       setNewTitle('');
       setNewDescription('');
@@ -59,15 +60,53 @@ const TodoList: React.FC<TodoListProps> = ({ todos }) => {
     setNewDescription('');
   };
 
+  const handleDeleteTodo = async (id: number) => {
+    const response = await fetch(`/api/todos/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      const index = displayedTodos.findIndex(todo => todo.id === id);
+      if (index !== -1) {
+        const newTodos = [...displayedTodos];
+        newTodos.splice(index, 1);
+        setDisplayedTodos(newTodos);
+        setSelectedItem(null);
+      }
+    }
+  };
+
+  const handleToggleComplete = async (id: number) => {
+    const todo = displayedTodos.find(todo => todo.id === id);
+    if (todo) {
+      const response = await fetch(`/api/todos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ completed: !todo.completed }),
+      });
+
+      if (response.ok) {
+        setDisplayedTodos(
+          (prevDisplayedTodos) =>
+            prevDisplayedTodos.map(t => t.id === id ? { ...t, completed: !t.completed } : t)
+        );
+      }
+    }
+  };
+
   return (
     <List>
-      {todos.map((todo) => (
+      {displayedTodos.map((todo) => (
         <TodoItem
           key={todo.id}
           title={todo.title}
           description={todo.description}
           completed={todo.completed}
           onSelect={() => handleSelect(todo)}
+          onDelete={() => handleDeleteTodo(todo.id)}
+          onToggleComplete={() => handleToggleComplete(todo.id)}
         />
       ))}
       {showInput && (
