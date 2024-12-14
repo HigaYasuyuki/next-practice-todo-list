@@ -1,21 +1,21 @@
-import { Typography } from '@mui/material';
+import { Typography, Checkbox, ListItem } from '@mui/material';
 import React from 'react';
 
 interface TodoItemProps {
   title: string;
   description: string|null;
   completed: boolean;
+  onSelect: () => void;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ title, description, completed }) => {
+const TodoItem: React.FC<TodoItemProps> = ({ title, description, completed, onSelect }) => {
   return (
-    <div>
+    <ListItem onClick={onSelect}>
+      <Checkbox checked={completed} disabled />
       <Typography>
         {title}
       </Typography>
-      <Typography>{description}</Typography>
-      <Typography>{completed ? 'Completed' : 'Not Completed'}</Typography>
-    </div>
+    </ListItem>
   );
 };
 

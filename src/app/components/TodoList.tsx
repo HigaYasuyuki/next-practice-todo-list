@@ -1,28 +1,41 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import TodoItem from './TodoItem';
-import { PrismaClient } from '@prisma/client';
+import SelectedItemDescription from './SelectedItemDescription';
+import { List } from '@mui/material';
 
-const prisma = new PrismaClient();
+interface Todo {
+  id: number;
+  title: string;
+  description: string | null;
+  completed: boolean;
+}
 
-const fetchTodos = async () => {
-  const todos = await prisma.todo.findMany();
-  return todos;
-};
+interface TodoListProps {
+  todos: Todo[];
+}
 
-const TodoList = async () => {
-  const todos = await fetchTodos();
+const TodoList: React.FC<TodoListProps> = ({ todos }) => {
+  const [selectedItem, setSelectedItem] = useState<Todo | null>(null);
+
+  const handleSelect = (item: Todo) => {
+    setSelectedItem(item);
+  };
 
   return (
-    <div>
+    <List>
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
           title={todo.title}
           description={todo.description}
           completed={todo.completed}
+          onSelect={() => handleSelect(todo)}
         />
       ))}
-    </div>
+      <SelectedItemDescription item={selectedItem} />
+    </List>
   );
 };
 
